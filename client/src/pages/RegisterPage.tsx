@@ -11,16 +11,15 @@ import {
   Text,
 } from '@chakra-ui/react'
 import { useState } from 'react'
-import { Link as RouterLink, Navigate, useLocation, useNavigate } from 'react-router-dom'
-import { getApiErrorMessage, login } from '../api/auth'
+import { Link as RouterLink, Navigate, useNavigate } from 'react-router-dom'
+import { getApiErrorMessage, register } from '../api/auth'
 import { getToken } from '../api/client'
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const navigate = useNavigate()
-  const location = useLocation()
-  const registeredEmail = (location.state as { registeredEmail?: string } | null)?.registeredEmail
-  const [email, setEmail] = useState(registeredEmail ?? '')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -31,13 +30,24 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+
+    if (password !== confirmPassword) {
+      setError('两次输入的密码不一致')
+      return
+    }
+
+    if (password.length < 6 || password.length > 8) {
+      setError('密码长度需在 6-8 位之间')
+      return
+    }
+
     setLoading(true)
 
     try {
-      await login({ email, password })
-      navigate('/', { replace: true })
+      await register({ email, password })
+      navigate('/login', { replace: true, state: { registeredEmail: email } })
     } catch (err) {
-      setError(getApiErrorMessage(err, '登录失败，请检查邮箱和密码'))
+      setError(getApiErrorMessage(err, '注册失败，请稍后重试'))
     } finally {
       setLoading(false)
     }
@@ -50,16 +60,10 @@ export default function LoginPage() {
           <Stack gap={6}>
             <Box textAlign="center">
               <Heading size="lg" mb={2}>
-                文档中心
+                注册账号
               </Heading>
-              <Text color="gray.600">登录以访问你的文档</Text>
+              <Text color="gray.600">创建账号以访问文档中心</Text>
             </Box>
-
-            {registeredEmail && (
-              <Text color="green.600" fontSize="sm" textAlign="center">
-                注册成功，请使用邮箱登录
-              </Text>
-            )}
 
             <form onSubmit={handleSubmit}>
               <Stack gap={4}>
@@ -79,7 +83,18 @@ export default function LoginPage() {
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="请输入密码"
+                    placeholder="6-8 位密码"
+                  />
+                  <Field.HelperText>密码长度为 6-8 位</Field.HelperText>
+                </Field.Root>
+
+                <Field.Root required>
+                  <Field.Label>确认密码</Field.Label>
+                  <Input
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="请再次输入密码"
                   />
                 </Field.Root>
 
@@ -90,15 +105,15 @@ export default function LoginPage() {
                 )}
 
                 <Button type="submit" colorPalette="blue" loading={loading} w="full">
-                  登录
+                  注册
                 </Button>
               </Stack>
             </form>
 
             <Text textAlign="center" fontSize="sm" color="gray.600">
-              还没有账号？{' '}
+              已有账号？{' '}
               <Link asChild color="blue.600">
-                <RouterLink to="/register">去注册</RouterLink>
+                <RouterLink to="/login">去登录</RouterLink>
               </Link>
             </Text>
           </Stack>
