@@ -5,8 +5,11 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from core.config import settings
-from core.base_model import Base, User
+from database.config import settings
+from database.base_model import Base
+
+# 创建 ORM 模型后在此导入，Alembic autogenerate 才能发现表结构
+from database.models import *  # noqa: F401, F403
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
