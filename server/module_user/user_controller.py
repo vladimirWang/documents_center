@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Security, HTTPException
+from fastapi import APIRouter, Depends, Security, HTTPException, status
 from fastapi.security import SecurityScopes
 from sqlalchemy import select, and_
 from sqlalchemy.orm import Session
@@ -9,6 +9,7 @@ from deps.user import ensure_email_unique
 from deps.verify_token import verify_token
 from module_user.user_vo import UserLogin, UserRegister
 from utils import create_access_token
+from common.resp import BaseResp
 
 
 def print_scopes(security_scopes: SecurityScopes):
@@ -38,10 +39,10 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
     if db_user is None:
         raise HTTPException(status_code=401, detail="邮箱或密码错误")
     token = create_access_token({"user_id": db_user.id, "username": db_user.username})
-    return {"token": token}
+    return BaseResp.success(data=token)
 
 
-@user_router.post("/register")
+@user_router.post("/register", status_code=status.HTTP_201_CREATED)
 def register(
     user: UserRegister,
     db: Session = Depends(get_db),
@@ -51,4 +52,4 @@ def register(
     db.add(db_user)
     db.commit()
     # db.refresh(db_user)
-    return {"success": True, "data": user.model_dump()}
+    return BaseResp.success(data=user.model_dump(), msg="注册成功")

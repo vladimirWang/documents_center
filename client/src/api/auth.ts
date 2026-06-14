@@ -17,6 +17,12 @@ export interface UserInfo {
   exp?: number
 }
 
+export interface ApiResponse<T> {
+  code: number
+  message: string
+  data: T
+}
+
 export const getApiErrorMessage = (error: unknown, fallback: string) => {
   if (!isAxiosError(error)) return fallback
   const detail = error.response?.data?.detail
@@ -28,16 +34,13 @@ export const getApiErrorMessage = (error: unknown, fallback: string) => {
 }
 
 export const login = async (payload: LoginPayload) => {
-  const { data } = await apiClient.post<{ token: string }>('/user/login', payload)
-  setToken(data.token)
+  const { data } = await apiClient.post<ApiResponse<string>>('/user/login', payload)
+  setToken(data.data)
   return data
 }
 
 export const register = async (payload: RegisterPayload) => {
-  const { data } = await apiClient.post<{ success: boolean; data: RegisterPayload }>(
-    '/user/register',
-    payload,
-  )
+  const { data } = await apiClient.post<ApiResponse<RegisterPayload>>('/user/register', payload)
   return data
 }
 
