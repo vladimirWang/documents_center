@@ -3,11 +3,11 @@ name = "sqlalchemy-test"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.13,<3.14"
 dependencies = [
     "sqlacodegen>=4.0.3",
     "sqlalchemy[asyncio]>=2.0.50",
-    "pgvector>=0.4.2",
+    "pgvector>=0.3.6,<0.4",
     "psycopg2-binary>=2.9.12",
     "psycopg[binary]>=3.3.4",
     "alembic>=1.18.4",
@@ -16,6 +16,14 @@ dependencies = [
     "pydantic>=2.13.4",
     "pyjwt>=2.13.0",
     "python-multipart>=0.0.32",
+    "langchain>=1.2.15",
+    "langchain-deepseek>=1.0.1",
+    "langchain-openai>=1.2.1",
+    "langchain-tavily>=0.2.18",
+    "langchain-text-splitters>=1.1.2",
+    "langchain-community>=0.4.1",
+    "langchain-postgres>=0.0.14",
+    "dashscope>=1.25.17",
 ]
 
 [[tool.uv.index]]
