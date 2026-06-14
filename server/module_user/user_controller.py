@@ -1,10 +1,20 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Security
+from fastapi.security import SecurityScopes
 
 from deps.verify_token import verify_token
 from module_user.user_vo import user_login, user_register
 from utils import create_access_token
 
-user_router = APIRouter(prefix="/user", tags=["用户管理"])
+
+def print_scopes(security_scopes: SecurityScopes):
+    print("scopes: ", security_scopes.scopes)
+
+
+user_router = APIRouter(
+    prefix="/user",
+    tags=["用户管理"],
+    dependencies=[Security(print_scopes, scopes=["admin"])],
+)
 
 
 @user_router.get("/user_info")
