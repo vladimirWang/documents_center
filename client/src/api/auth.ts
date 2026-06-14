@@ -24,8 +24,11 @@ export interface ApiResponse<T> {
 }
 
 export const getApiErrorMessage = (error: unknown, fallback: string) => {
+  if (error instanceof Error && error.message) return error.message
   if (!isAxiosError(error)) return fallback
-  const detail = error.response?.data?.detail
+  const responseData = error.response?.data as { message?: string; detail?: unknown } | undefined
+  if (typeof responseData?.message === 'string') return responseData.message
+  const detail = responseData?.detail
   if (typeof detail === 'string') return detail
   if (Array.isArray(detail) && detail.length > 0) {
     return detail.map((item) => item.msg).join('；')

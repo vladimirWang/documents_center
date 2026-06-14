@@ -30,3 +30,21 @@ export const uploadFile = async (file: File) => {
   })
   return data
 }
+
+export const deleteFile = async (fileId: number) => {
+  const { data } = await apiClient.delete<ApiResponse<null>>(`/file/${fileId}`)
+  if (data.code !== 200) {
+    throw new Error(data.message)
+  }
+  return data
+}
+
+export const vectorizeFile = async (fileId: number) => {
+  const { data } = await apiClient.post<ApiResponse<{ file_id: number; chunk_count: number }>>(
+    `/file/vectorize/${fileId}`,
+  )
+  if (data.code !== 200) {
+    throw new Error(data.message)
+  }
+  return data
+}

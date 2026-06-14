@@ -71,3 +71,29 @@ def file_list(db: Session = Depends(get_db)):
         for f in files
     ]
     return BaseResp.success(data=data)
+
+@file_router.delete("/{file_id}")
+def delete_file(file_id: int, db: Session = Depends(get_db)):
+    stmt = select(FileModel).where(FileModel.id == file_id)
+    db_file = db.scalar(stmt)
+    if db_file is None:
+        return BaseResp.fail(msg="文件不存在")
+
+    file_path = Path(db_file.filepath)
+    if file_path.is_file():
+        file_path.unlink()
+
+    db.delete(db_file)
+    db.commit()
+    return BaseResp.success(msg="文件删除成功")
+
+
+@file_router.post("/vectorize/{file_id}")
+def create_file_vector(file_id: int, db: Session = Depends(get_db)):
+    stmt = select(FileModel).where(FileModel.id == file_id)
+    db_file = db.scalar(stmt)
+    if db_file is None:
+        return BaseResp.fail(msg="文件不存在")
+
+    
+    return BaseResp.success(data=db_file)

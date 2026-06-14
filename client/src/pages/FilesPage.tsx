@@ -1,6 +1,7 @@
 import {
   Badge,
   Box,
+  Button,
   Card,
   Heading,
   HStack,
@@ -12,7 +13,7 @@ import {
 } from '@chakra-ui/react'
 import { useRef, useState } from 'react'
 import { getApiErrorMessage } from '../api/auth'
-import { uploadFile } from '../api/files'
+import { deleteFile, uploadFile, vectorizeFile } from '../api/files'
 import { useFiles } from '../hooks/useFiles'
 
 const formatFileSize = (size: number) => {
@@ -29,8 +30,43 @@ export default function FilesPage() {
   const inputRef = useRef<HTMLInputElement>(null)
   const { data: files, isLoading, error, mutate } = useFiles()
   const [uploading, setUploading] = useState(false)
+  const [deletingId, setDeletingId] = useState<number | null>(null)
+  const [vectorizingId, setVectorizingId] = useState<number | null>(null)
   const [message, setMessage] = useState('')
   const [errorMsg, setErrorMsg] = useState('')
+
+  const handleDelete = async (fileId: number) => {
+    if (!window.confirm('确定要删除该文件吗？')) return
+
+    setDeletingId(fileId)
+    setMessage('')
+    setErrorMsg('')
+
+    try {
+      const result = await deleteFile(fileId)
+      setMessage(result.message)
+      await mutate()
+    } catch (err) {
+      setErrorMsg(getApiErrorMessage(err, '文件删除失败'))
+    } finally {
+      setDeletingId(null)
+    }
+  }
+
+  const handleVectorize = async (fileId: number) => {
+    setVectorizingId(fileId)
+    setMessage('')
+    setErrorMsg('')
+
+    try {
+      const result = await vectorizeFile(fileId)
+      setMessage(result.message)
+    } catch (err) {
+      setErrorMsg(getApiErrorMessage(err, '文件向量化失败'))
+    } finally {
+      setVectorizingId(null)
+    }
+  }
 
   const handleUpload = async (selectedFile: File | undefined) => {
     if (!selectedFile) return
@@ -122,6 +158,7 @@ export default function FilesPage() {
                 <Table.ColumnHeader>大小</Table.ColumnHeader>
                 <Table.ColumnHeader>MD5</Table.ColumnHeader>
                 <Table.ColumnHeader>上传时间</Table.ColumnHeader>
+                <Table.ColumnHeader>操作</Table.ColumnHeader>
               </Table.Row>
             </Table.Header>
             <Table.Body>
@@ -143,6 +180,28 @@ export default function FilesPage() {
                     </Text>
                   </Table.Cell>
                   <Table.Cell>{formatDate(file.created_at)}</Table.Cell>
+                  <Table.Cell>
+                    <HStack gap={2}>
+                      <Button
+                        size="xs"
+                        colorPalette="blue"
+                        variant="outline"
+                        loading={vectorizingId === file.id}
+                        onClick={() => handleVectorize(file.id)}
+                      >
+                        向量化
+                      </Button>
+                      <Button
+                        size="xs"
+                        colorPalette="red"
+                        variant="outline"
+                        loading={deletingId === file.id}
+                        onClick={() => handleDelete(file.id)}
+                      >
+                        删除
+                      </Button>
+                    </HStack>
+                  </Table.Cell>
                 </Table.Row>
               ))}
             </Table.Body>
