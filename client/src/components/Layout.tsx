@@ -6,6 +6,7 @@ import { useAuth } from '../hooks/useAuth'
 const navItems = [
   { to: '/', label: '首页' },
   { to: '/documents', label: '我的文档' },
+  { to: '/files', label: '我的文件' },
 ]
 
 export default function Layout() {

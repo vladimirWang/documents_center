@@ -48,6 +48,7 @@ const quickEntries: QuickEntry[] = [
     icon: FaCloudUploadAlt,
     color: 'green.500',
     bg: 'green.50',
+    path: '/files',
   },
   {
     id: 'shared',

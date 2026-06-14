@@ -4,6 +4,7 @@ import ProtectedRoute from './components/ProtectedRoute'
 import DocumentDetailPage from './pages/DocumentDetailPage'
 import DocumentsPage from './pages/DocumentsPage'
 import HomePage from './pages/HomePage'
+import FilesPage from './pages/FilesPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 
@@ -17,6 +18,7 @@ export default function App() {
           <Route element={<Layout />}>
             <Route path="/" element={<HomePage />} />
             <Route path="/documents" element={<DocumentsPage />} />
+            <Route path="/files" element={<FilesPage />} />
             <Route path="/documents/:id" element={<DocumentDetailPage />} />
           </Route>
         </Route>
