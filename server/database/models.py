@@ -16,3 +16,16 @@ class User(Base, TimestampMixin):
         String(255), nullable=False, unique=True, comment="邮箱"
     )
     password: Mapped[str] = mapped_column(String(255), nullable=False, comment="密码")
+
+class File(Base, TimestampMixin):
+    """
+    文件模型
+    """
+
+    __tablename__ = "files"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, comment="文件ID")
+    md5: Mapped[str] = mapped_column(String(255), nullable=False, comment="文件MD5")
+    original_filename: Mapped[str] = mapped_column(String(255), nullable=False, comment="文件名")
+    filepath: Mapped[str] = mapped_column(String(255), nullable=False, comment="文件路径")
+    filesize: Mapped[int] = mapped_column(Integer, nullable=False, comment="文件大小")
+    filetype: Mapped[str] = mapped_column(String(255), nullable=False, comment="文件类型")
