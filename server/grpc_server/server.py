@@ -3,7 +3,8 @@ from concurrent import futures
 
 import grpc
 
-from grpc_generated import client_pb2_grpc
+from grpc_generated import chat_pb2_grpc, client_pb2_grpc
+from grpc_server.chat_servicer import ChatServicer
 from grpc_server.client_servicer import ClientServicer
 
 DEFAULT_HOST = "0.0.0.0"
@@ -13,6 +14,7 @@ DEFAULT_PORT = 50051
 def serve(host: str = DEFAULT_HOST, port: int = DEFAULT_PORT) -> None:
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     client_pb2_grpc.add_ClientServiceServicer_to_server(ClientServicer(), server)
+    chat_pb2_grpc.add_ChatServiceServicer_to_server(ChatServicer(), server)
     server.add_insecure_port(f"{host}:{port}")
     server.start()
     print(f"gRPC server listening on {host}:{port}")
