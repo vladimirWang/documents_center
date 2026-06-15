@@ -19,8 +19,8 @@ export default function LoginPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const registeredEmail = (location.state as { registeredEmail?: string } | null)?.registeredEmail
-  const [email, setEmail] = useState(registeredEmail ?? '')
-  const [password, setPassword] = useState('')
+  const [email, setEmail] = useState(registeredEmail ?? '413114463@qq.com')
+  const [password, setPassword] = useState('123456')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 

@@ -1,0 +1,24 @@
+[project]
+name = "documents-center-chat"
+version = "0.1.0"
+description = "文档中心智能客服 Streamlit 应用"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+    "streamlit>=1.44.0",
+    "python-dotenv>=1.1.0",
+    "grpcio>=1.71.0",
+    "protobuf>=6.30.0",
+    "langchain>=1.2.15",
+    "langchain-openai>=1.2.1",
+    "langchain-text-splitters>=1.1.2",
+    "langchain-community>=0.4.1",
+    "langchain-postgres>=0.0.14",
+    "dashscope>=1.25.17",
+    "sqlalchemy[asyncio]>=2.0.50",
+    "pgvector>=0.3.6,<0.4",
+    "psycopg[binary]>=3.3.4",
+]
+
+[[tool.uv.index]]
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+default = true

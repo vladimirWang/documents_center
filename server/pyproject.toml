@@ -24,6 +24,9 @@ dependencies = [
     "langchain-community>=0.4.1",
     "langchain-postgres>=0.0.14",
     "dashscope>=1.25.17",
+    "grpcio>=1.71.0",
+    "grpcio-tools>=1.71.0",
+    "protobuf>=6.30.0",
 ]
 
 [[tool.uv.index]]
