@@ -1,18 +1,23 @@
 import json
+import os
+from contextlib import asynccontextmanager
 from datetime import datetime, timedelta
-
-from fastapi import Depends, FastAPI, Header, HTTPException, Response
-from pydantic import BaseModel, Field
-
-from module_user.user_controller import user_router
-from module_file.file_controller import file_router
-from module_client.client_controller import client_router
-from module_chat.chat_controller import chat_router
 from pathlib import Path
 
-from config import UPLOAD_DIR
-from fastapi.staticfiles import StaticFiles
+from dotenv import load_dotenv
 
+load_dotenv(Path(__file__).resolve().parent / ".env")
+
+from fastapi import Depends, FastAPI, Header, HTTPException, Response
+from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel, Field
+
+from config import UPLOAD_DIR
+from grpc_server.server import DEFAULT_HOST, DEFAULT_PORT, create_server
+from module_chat.chat_controller import chat_router
+from module_client.client_controller import client_router
+from module_file.file_controller import file_router
+from module_user.user_controller import user_router
 
 try:
     # 自动保证目录一定存在
@@ -22,7 +27,18 @@ except Exception as e:
     print(f"创建目录失败: {e}")
     raise HTTPException(status_code=500, detail=f"创建目录失败: {e}")
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    host = os.environ.get("GRPC_HOST", DEFAULT_HOST)
+    port = int(os.environ.get("GRPC_PORT", DEFAULT_PORT))
+    grpc_server = create_server(host, port)
+    grpc_server.start()
+    print(f"gRPC server listening on {host}:{port}")
+    yield
+    grpc_server.stop(grace=5)
+
+
+app = FastAPI(lifespan=lifespan)
 
 
 @app.get("/")

@@ -7,7 +7,6 @@
 """
 
 import logging
-import os
 from datetime import datetime
 from typing import Optional
 from uuid import UUID
@@ -26,11 +25,10 @@ from sqlalchemy.orm import (
     Session,
     mapped_column,
 )
+from database.config import settings
 from database.models import ChatSession, AgentChatMessage
 
-PG_URL = os.getenv("SQLALCHEMY_DATABASE_URL")
-
-engine = create_engine(PG_URL, pool_pre_ping=True)
+engine = create_engine(settings.database_url, pool_pre_ping=True)
 logger = logging.getLogger("personal_chief.sqlalchemy_history")
 
 
