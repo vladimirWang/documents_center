@@ -5,8 +5,8 @@ import streamlit as st
 from chat_ui import render_chat_page
 
 st.set_page_config(
-    page_title="文档中心智能客服",
-    page_icon="💬",
+    page_title="新对话",
+    page_icon="➕",
     layout="centered",
 )
 

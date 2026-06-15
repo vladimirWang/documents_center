@@ -1,7 +1,12 @@
 import os
 from functools import lru_cache
+from uuid import UUID
+
+from sqlalchemy import select
 
 from agent.rag import RagService
+from database.models import ChatSession
+from database.session import SessionLocal
 
 
 @lru_cache(maxsize=1)
@@ -9,8 +14,24 @@ def get_rag_service() -> RagService:
     return RagService()
 
 
-def chat_invoke(question: str, session_id: str | None = None) -> str:
-    # sid = session_id or os.getenv("DEFAULT_CHAT_SESSION_ID", "00000000-0000-0000-0000-000000000001")
-    uuid_mock = "00000000-0000-0000-0000-000000000001"
-    session_config = {"configurable": {"session_id": uuid_mock}}
+def _normalize_session_id(session_id: str) -> str:
+    return str(UUID(session_id))
+
+
+def ensure_chat_session(session_id: str, user_id: int | None = None) -> str:
+    sid = _normalize_session_id(session_id)
+    uid = user_id or int(os.getenv("DEFAULT_CHAT_USER_ID", "1"))
+    with SessionLocal() as db:
+        exists = db.scalar(select(ChatSession.id).where(ChatSession.id == sid))
+        if exists is None:
+            db.add(ChatSession(id=sid, user_id=uid))
+            db.commit()
+    return sid
+
+
+def chat_invoke(question: str, session_id: str) -> str:
+    # sid = ensure_chat_session(
+    #     session_id or os.getenv("DEFAULT_CHAT_SESSION_ID", "00000000-0000-0000-0000-000000000001")
+    # )
+    session_config = {"configurable": {"session_id": session_id}}
     return get_rag_service().chain.invoke({"input": question}, session_config)

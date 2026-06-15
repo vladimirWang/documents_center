@@ -38,7 +38,9 @@ def main() -> int:
         print(f"[watch_grpc] no .proto files in {PROTOS_DIR}", file=sys.stderr)
         return 1
 
-    run_generate()
+    watch_only = "--watch-only" in sys.argv
+    if not watch_only:
+        run_generate()
     last_fingerprint = proto_fingerprint()
     print(f"[watch_grpc] watching {PROTOS_DIR} ({len(proto_files)} file(s))")
 
