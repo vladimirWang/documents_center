@@ -37,27 +37,8 @@ def decode_token(token: str):
     return payload
 
 
-def calc_file_md5(source: str | Path | BinaryIO, chunk_size: int = 8192) -> str:
-    """计算文件 MD5，支持文件路径或二进制流（如 UploadFile.file）。"""
-    hasher = md5()
-
-    if isinstance(source, (str, Path)):
-        with open(source, "rb") as f:
-            for chunk in iter(lambda: f.read(chunk_size), b""):
-                hasher.update(chunk)
-    else:
-        pos = source.tell()
-        try:
-            source.seek(0)
-            for chunk in iter(lambda: source.read(chunk_size), b""):
-                hasher.update(chunk)
-        finally:
-            source.seek(pos)
-
-    return hasher.hexdigest()
-
-
 def gen_random_filename(original_filename: str) -> str:
     """结合原始文件名后缀，生成随机存储文件名。"""
     suffix = Path(original_filename).suffix
-    return f"{original_filename}_{secrets.token_hex(16)}{suffix}"
+    basename = Path(original_filename).stem
+    return f"{basename}_{secrets.token_hex(16)}{suffix}"

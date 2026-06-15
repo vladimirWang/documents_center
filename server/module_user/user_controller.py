@@ -8,7 +8,7 @@ from database.session import get_db
 from deps.user import ensure_email_unique
 from deps.verify_token import verify_token
 from module_user.user_vo import UserLogin, UserRegister
-from utils import create_access_token
+from utils.util import create_access_token
 from common.resp import BaseResp
 
 

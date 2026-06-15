@@ -1,7 +1,7 @@
 import jwt
 from fastapi import Header, HTTPException
 
-from utils import decode_token
+from utils.util import decode_token
 
 
 # token认证
