@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 
 from module_user.user_controller import user_router
 from module_file.file_controller import file_router
+from module_client.client_controller import client_router
 from pathlib import Path
 
 from config import UPLOAD_DIR
@@ -38,6 +39,7 @@ def response():
 
 app.include_router(user_router)
 app.include_router(file_router)
+app.include_router(client_router)
 
 
 if __name__ == "__main__":

@@ -30,3 +30,14 @@ class File(Base, TimestampMixin):
     filesize: Mapped[int] = mapped_column(Integer, nullable=False, comment="文件大小")
     filetype: Mapped[str] = mapped_column(String(255), nullable=False, comment="文件类型")
     vectorized: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default=false(), comment="是否已向量化")
+
+class Client(Base, TimestampMixin):
+    """
+    文件模型
+    """
+
+    __tablename__ = "clients"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, comment="客户ID")
+    email: Mapped[str] = mapped_column(String(255), nullable=False, comment="邮箱")
+    mobile: Mapped[str] = mapped_column(String(255), nullable=False, comment="电话")
+    password: Mapped[str] = mapped_column(String(255), nullable=False, comment="密码")
