@@ -28,7 +28,7 @@ class File(Base, TimestampMixin):
     original_filename: Mapped[str] = mapped_column(String(255), nullable=False, comment="文件名")
     filepath: Mapped[str] = mapped_column(String(255), nullable=False, comment="文件路径")
     filesize: Mapped[int] = mapped_column(Integer, nullable=False, comment="文件大小")
-    filetype: Mapped[str] = mapped_column(String(255), nullable=False, comment="文件类型")
+    mimetype: Mapped[str] = mapped_column(String(255), nullable=False, comment="文件类型")
     vectorized: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default=false(), comment="是否已向量化")
 
 class Client(Base, TimestampMixin):

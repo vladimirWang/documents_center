@@ -10,6 +10,8 @@ from module_client.client_controller import client_router
 from pathlib import Path
 
 from config import UPLOAD_DIR
+from fastapi.staticfiles import StaticFiles
+
 
 try:
     # 自动保证目录一定存在
@@ -41,6 +43,8 @@ app.include_router(user_router)
 app.include_router(file_router)
 app.include_router(client_router)
 
+# 在创建 app 和 include_router 之后添加
+app.mount("/statics", StaticFiles(directory="statics"), name="static")
 
 if __name__ == "__main__":
     import uvicorn

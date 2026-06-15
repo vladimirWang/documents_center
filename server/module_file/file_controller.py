@@ -3,6 +3,7 @@ from pathlib import Path
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from sqlalchemy import select
 from sqlalchemy.orm import Session
+import mimetypes
 
 from agent.knowledge_base import KnowledgeBase
 from common.resp import BaseResp
@@ -13,6 +14,7 @@ from deps.file import check_file
 from deps.verify_token import verify_token
 from utils.file import calc_file_md5, get_local_file, get_local_file_bytes
 from utils.util import gen_random_filename
+import os
 
 file_router = APIRouter(
     prefix="/file",
@@ -20,6 +22,7 @@ file_router = APIRouter(
     dependencies=[Depends(verify_token)],
 )
 
+SERVER_URL = os.getenv("SERVER_URL")
 
 def check_file_existed_by_md5(file: UploadFile, db: Session) -> (str | None, str, str):
     md5_hash = calc_file_md5(file.file)
@@ -44,13 +47,14 @@ def upload_file(file: UploadFile = File(...), db: Session = Depends(get_db)):
 
     content = file.file.read()
     save_path.write_bytes(content)
+    mimetype, _ = mimetypes.guess_type(file.filename)
 
     new_file = FileModel(
         md5=md5_hash,
         original_filename=file.filename,
         filepath=str(save_path),
         filesize=len(content),
-        filetype=file.content_type or "",
+        mimetype=mimetype,
     )
     db.add(new_file)
     db.commit()
@@ -71,7 +75,7 @@ def file_list(db: Session = Depends(get_db)):
             "original_filename": f.original_filename,
             "filepath": f.filepath,
             "filesize": f.filesize,
-            "filetype": f.filetype,
+            "mimetype": f.mimetype,
             "created_at": f.created_at,
             "updated_at": f.updated_at,
             "vectorized": f.vectorized,
@@ -104,10 +108,10 @@ def create_file_vector(
     db: Session = Depends(get_db),
 ):
     print("user_info: ", user_info, db_file.filepath)
-    file_content = get_local_file(db_file.filepath)
-    print("file_content: ", file_content)
     kb = KnowledgeBase()
-    result = kb.add_knowledge(file_content, db_file.id, user_info["user_id"])
+    full_filepath = f"{SERVER_URL}/{db_file.filepath}"
+
+    result = kb.add_knowledge(full_filepath, db_file.id, user_info["user_id"])
     db_file.vectorized = True
     db.commit()
     # print("file_bytes is ", file_content)
