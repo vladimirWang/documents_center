@@ -61,6 +61,7 @@ export default function FilesPage() {
     try {
       const result = await vectorizeFile(fileId)
       setMessage(result.message)
+      await mutate()
     } catch (err) {
       setErrorMsg(getApiErrorMessage(err, '文件向量化失败'))
     } finally {
@@ -157,6 +158,7 @@ export default function FilesPage() {
                 <Table.ColumnHeader>类型</Table.ColumnHeader>
                 <Table.ColumnHeader>大小</Table.ColumnHeader>
                 <Table.ColumnHeader>MD5</Table.ColumnHeader>
+                <Table.ColumnHeader>向量化</Table.ColumnHeader>
                 <Table.ColumnHeader>上传时间</Table.ColumnHeader>
                 <Table.ColumnHeader>操作</Table.ColumnHeader>
               </Table.Row>
@@ -179,6 +181,11 @@ export default function FilesPage() {
                       {file.md5.slice(0, 8)}...
                     </Text>
                   </Table.Cell>
+                  <Table.Cell>
+                    <Badge colorPalette={file.vectorized ? 'green' : 'gray'}>
+                      {file.vectorized ? '已向量化' : '未向量化'}
+                    </Badge>
+                  </Table.Cell>
                   <Table.Cell>{formatDate(file.created_at)}</Table.Cell>
                   <Table.Cell>
                     <HStack gap={2}>
@@ -189,7 +196,7 @@ export default function FilesPage() {
                         loading={vectorizingId === file.id}
                         onClick={() => handleVectorize(file.id)}
                       >
-                        向量化
+                        {file.vectorized ? '重新向量化' : '向量化'}
                       </Button>
                       <Button
                         size="xs"

@@ -24,3 +24,28 @@ def get_pgvector_store() -> PGVector:
         embedding_length=config.embedding_length,
         create_extension=True,
     )
+
+def delete_by_logical_source(store: PGVector, file_id: str) -> int:
+    """删除同一逻辑文件的历史向量（含旧版带时间戳的 source）。"""
+    ids_to_delete: list[str] = []
+    with store._make_sync_session() as session:
+        collection = store.get_collection(session)
+        if not collection:
+            return 0
+        rows = session.execute(
+            select(store.EmbeddingStore.id, store.EmbeddingStore.cmetadata).where(
+                # 找到对应的collection
+                store.EmbeddingStore.collection_id == collection.uuid
+            )
+        ).all()
+        print("-----for rows------")
+        for row_id, cmetadata in rows:
+            print(f"cmetadata: {cmetadata}, row_id: {row_id}", )
+            src = (cmetadata or {}).get('source') or ''
+            print(f"src: {src}, file_id: {file_id}")
+            if src == file_id:
+                ids_to_delete.append(row_id)
+
+    if ids_to_delete:
+        store.delete(ids=ids_to_delete, collection_only=True)
+    return len(ids_to_delete)

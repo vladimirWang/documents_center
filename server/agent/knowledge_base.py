@@ -3,7 +3,7 @@ import copy
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 import agent.config_data as config
-from agent.pgvector_store import get_pgvector_store
+from agent.pgvector_store import get_pgvector_store, delete_by_logical_source
 
 
 class KnowledgeBase:
@@ -17,6 +17,8 @@ class KnowledgeBase:
         )
 
     def add_knowledge(self, content: str, file_id: int, operator: int):
+        deleted_count = delete_by_logical_source(self.vector_store, str(file_id))
+        
         chunks = []
         if len(content) > config.chunk_overlap:
             chunks = self.splitter.split_text(content)
@@ -28,7 +30,13 @@ class KnowledgeBase:
             "source": str(file_id),
         }
         self.vector_store.add_texts(chunks, metadatas=[copy.deepcopy(metadata) for _ in chunks])
-        print(f"chunks: {chunks}, str: {str}, file_id: {file_id}, operator: {operator}")
+        # print(f"chunks: {chunks}, str: {str}, file_id: {file_id}, operator: {operator}")
+        return {
+            "deleted_count": deleted_count, # 删除的向量数量
+            "added_count": len(chunks), # 新增的向量数量
+            "is_update": deleted_count > 0, # 是否更新
+            "addleted_count": len(chunks) - deleted_count if deleted_count > 0 else 0, # 当对已向量化后的文件再次向量化时，新增的向量数量 - 删除的向量数量
+        }
 
     def delete_knowledge(self, knowledge: str):
         self.knowledge_base.remove(knowledge)

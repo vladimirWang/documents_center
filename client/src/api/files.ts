@@ -8,6 +8,7 @@ export interface FileItem {
   filepath: string
   filesize: number
   filetype: string
+  vectorized: boolean
   created_at: string
   updated_at: string
 }
@@ -39,8 +40,14 @@ export const deleteFile = async (fileId: number) => {
   return data
 }
 
+export interface VectorizeFileResult {
+  file_id: number
+  original_filename: string
+  file_size: number
+}
+
 export const vectorizeFile = async (fileId: number) => {
-  const { data } = await apiClient.post<ApiResponse<{ file_id: number; chunk_count: number }>>(
+  const { data } = await apiClient.post<ApiResponse<VectorizeFileResult>>(
     `/file/vectorize/${fileId}`,
   )
   if (data.code !== 200) {

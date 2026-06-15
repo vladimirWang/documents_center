@@ -74,6 +74,7 @@ def file_list(db: Session = Depends(get_db)):
             "filetype": f.filetype,
             "created_at": f.created_at,
             "updated_at": f.updated_at,
+            "vectorized": f.vectorized,
         }
         for f in files
     ]
@@ -98,14 +99,23 @@ def delete_file(file_id: int, db: Session = Depends(get_db)):
 
 @file_router.post("/vectorize/{file_id}")
 def create_file_vector(
-    db_file: FileModel = Depends(check_file), user_info: dict = Depends(verify_token)
+    db_file: FileModel = Depends(check_file),
+    user_info: dict = Depends(verify_token),
+    db: Session = Depends(get_db),
 ):
     print("user_info: ", user_info, db_file.filepath)
     file_content = get_local_file(db_file.filepath)
     print("file_content: ", file_content)
     kb = KnowledgeBase()
-    kb.add_knowledge(file_content, db_file.id, user_info["user_id"])
+    result = kb.add_knowledge(file_content, db_file.id, user_info["user_id"])
+    db_file.vectorized = True
+    db.commit()
     # print("file_bytes is ", file_content)
+    msg = (
+        f"重新向量化成功，替换 {result['deleted_count']} 条，新增 {result["addleted_count"]} 条"
+        if result["is_update"]
+        else f"向量化成功，共 {result["added_count"]} 个片段"
+    )
     return BaseResp.success(
         data={
             "file_id": db_file.id,
@@ -113,5 +123,5 @@ def create_file_vector(
             "file_size": db_file.filesize,
         },
         # data={"file_id": 1, "original_filename": "tt.txt", "file_size": 123},
-        msg="文件读取成功",
+        msg=msg,
     )

@@ -1,4 +1,4 @@
-from sqlalchemy import Integer, String
+from sqlalchemy import Boolean, Integer, String, false
 from sqlalchemy.orm import Mapped, mapped_column
 
 from database.base_model import Base, TimestampMixin
@@ -29,3 +29,4 @@ class File(Base, TimestampMixin):
     filepath: Mapped[str] = mapped_column(String(255), nullable=False, comment="文件路径")
     filesize: Mapped[int] = mapped_column(Integer, nullable=False, comment="文件大小")
     filetype: Mapped[str] = mapped_column(String(255), nullable=False, comment="文件类型")
+    vectorized: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default=false(), comment="是否已向量化")
