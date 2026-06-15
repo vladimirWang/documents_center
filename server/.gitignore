@@ -2,3 +2,6 @@ __pycache__/
 .venv
 statics/uploads/
 grpc_generated/
+.env
+.env.dev
+.env.prod
