@@ -8,7 +8,8 @@ from dotenv import load_dotenv
 
 load_dotenv(Path(__file__).resolve().parent / ".env")
 
-from fastapi import Depends, FastAPI, Header, HTTPException, Response
+from fastapi import Depends, FastAPI, Header, HTTPException, Response, Request
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
@@ -40,7 +41,19 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+# @app.middleware("http")
+# async def global_exception_middleware(request: Request, call_next):
+#     try:
+#         response = await call_next(request)
+#         return response
+#     except Exception as e:
+#         print(f"全局异常: {e}")
+#         return JSONResponse(status_code=500, content={"message": "服务器内部错误"})
 
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    print(f"全局异常: {exc}")
+    return JSONResponse(status_code=500, content={"message": "服务器内部错误22"})
 @app.get("/")
 def root():
     return {"message": "Hello World222"}
