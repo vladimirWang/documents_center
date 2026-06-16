@@ -6,7 +6,7 @@ from agent.sqlalchemy_history_store import get_history
 from database.models import Product
 from database.session import SessionLocal
 from langchain_community.chat_models.tongyi import ChatTongyi
-from langchain_core.messages import HumanMessage, SystemMessage, ToolMessage
+from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage, ToolMessage, AIMessage
 from langchain_core.tools import tool
 from module_order.order_service import create_order_data, serialize_order
 from module_order.order_vo import OrderCreate, OrderItemCreate, PrepareOrderMultipleProducts
@@ -15,12 +15,12 @@ from typing import Annotated
 
 SYSTEM_PROMPT = """你是智能买手，帮助用户查询商品并代购下单。
 流程：
-1. 用 list_products 查商品。
-2. 用户表达购买意图时，调用 prepare_order 生成待确认订单，并向用户展示摘要，请其确认。
+1. 用 list_products 查商品，记住返回的 product_id。
+2. 用户表达购买意图时，必须调用 prepare_order，使用 list_products 中的 product_id 和对应数量，不要只用文字回复。
 3. 只有用户在下一轮对话中明确表示「确认」「好的」「下单」等时，才调用 confirm_order 真正下单。
 4. 禁止在同一轮对话里连续调用 prepare_order 和 confirm_order。"""
 
-_pending_orders: dict[str, list[dict]] = {}
+_pending_orders: dict[str, dict] = {}
 _session_id_ctx: contextvars.ContextVar[str | None] = contextvars.ContextVar(
     "product_agent_session_id", default=None
 )
@@ -66,11 +66,14 @@ def prepare_order(items: PrepareOrderMultipleProducts) -> str:
             })
             total_price += product_map[product.product_id].price * product.quantity
         
-        _pending_orders[_current_session_id()] = draft
+        _pending_orders[_current_session_id()] = {
+            "items": draft,
+            "remark": items.remark or "",
+        }
         msg_item = [f"{i['product_name']} x{i['quantity']}，单价 {i['price']}" for i in draft]
         resp = {
             "status": "pending_confirmation",
-            "summary": items.model_dump(),
+            "summary": {"items": draft, "total_price": total_price, "remark": items.remark},
             "message": f"请确认： {', '.join(msg_item)}，合计 {total_price}。回复「确认」后下单。",
         }
 
@@ -93,7 +96,8 @@ def confirm_order() -> str:
                         product_id=draft_item["product_id"],
                         quantity=draft_item["quantity"],
                         price=draft_item["price"],
-                    ) for draft_item in draft
+                    )
+                    for draft_item in draft["items"]
                 ],
                 remark=draft.get("remark", ""),
             ),
@@ -114,17 +118,20 @@ def run_product_agent(question: str, session_id: str) -> str:
     prepared_this_turn = False
     try:
         history = get_history(session_id)
+        human_msg = HumanMessage(content=question)
+        turn_messages: list[BaseMessage] = [human_msg]
         messages = [
             SystemMessage(content=SYSTEM_PROMPT),
             *history.messages,
-            HumanMessage(content=question),
+            human_msg,
         ]
         llm = ChatTongyi(model=config.chat_model_name).bind_tools(PRODUCT_TOOLS)
 
         for _ in range(5):
             ai_msg = llm.invoke(messages)
+            turn_messages.append(ai_msg)
             if not ai_msg.tool_calls:
-                history.add_messages([HumanMessage(content=question), ai_msg])
+                history.add_messages(turn_messages)
                 return ai_msg.content or "已完成。"
 
             messages.append(ai_msg)
@@ -139,9 +146,9 @@ def run_product_agent(question: str, session_id: str) -> str:
                     result = tool_fn.invoke(tc["args"])
                     if tc["name"] == "prepare_order":
                         prepared_this_turn = True
-                messages.append(
-                    ToolMessage(content=str(result), tool_call_id=tc["id"])
-                )
+                tool_msg = ToolMessage(content=str(result), tool_call_id=tc["id"], name=tc["name"])
+                messages.append(tool_msg)
+                turn_messages.append(tool_msg)
     finally:
         _session_id_ctx.reset(session_token)
 
