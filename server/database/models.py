@@ -80,6 +80,7 @@ class Product(Base, TimestampMixin):
     price: Mapped[float] = mapped_column(Float, nullable=False, comment="产品价格")
     order_items: Mapped[list["OrderProduct"]] = relationship(back_populates="product")
     balance: Mapped[int] = mapped_column(Integer, nullable=False, comment="库存")
+    vectorized: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default=false(), comment="是否已向量化")
 
 class OrderProduct(Base, TimestampMixin):
     __tablename__ = "order_product"

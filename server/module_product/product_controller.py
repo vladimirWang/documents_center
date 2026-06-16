@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from database.session import get_db
@@ -6,6 +6,7 @@ from database.models import Product
 from common.resp import BaseResp
 from deps.product import get_db_product
 from module_product.product_vo import ProductCreate, ProductUpdate
+from agent.product_base import ProductBase
 
 product_router = APIRouter(
     prefix="/product",
@@ -42,10 +43,21 @@ def create_product(product: ProductCreate, db: Session = Depends(get_db)):
         name=product.name,
         description=product.description or "",
         price=product.price,
+        vectorized=False,
+        balance=0,
     )
     db.add(new_product)
-    db.commit()
-    db.refresh(new_product)
+    try:
+        # 刷新拿到产品id, 避免向量化时没有产品id
+        db.flush()
+        pb = ProductBase()
+        msg = pb.add_product(new_product)
+        new_product.vectorized = True
+        db.commit()
+        # db.refresh(new_product)
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(f"创建产品失败: {e}"))
     return BaseResp.success(data={"product": _serialize_product(new_product)})
 
 

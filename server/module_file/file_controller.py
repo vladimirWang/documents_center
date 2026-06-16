@@ -107,7 +107,6 @@ def create_file_vector(
     user_info: dict = Depends(verify_token),
     db: Session = Depends(get_db),
 ):
-    print("user_info: ", user_info, db_file.filepath)
     kb = KnowledgeBase()
     full_filepath = f"{SERVER_URL}/{db_file.filepath}"
 

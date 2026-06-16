@@ -18,7 +18,7 @@ def load_and_split_pdf(filepath: str, splitter: RecursiveCharacterTextSplitter):
 
 class KnowledgeBase:
     def __init__(self):
-        self.vector_store = get_pgvector_store()
+        self.vector_store = get_pgvector_store(config.documents_collection_name)
         self.splitter = RecursiveCharacterTextSplitter(
             chunk_overlap=config.chunk_overlap,
             chunk_size=config.chunk_size,

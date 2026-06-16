@@ -12,13 +12,13 @@ def get_embeddings() -> DashScopeEmbeddings:
     return DashScopeEmbeddings(model=config.embedding_model)
 
 
-@lru_cache(maxsize=1)
-def get_pgvector_store() -> PGVector:
+@lru_cache
+def get_pgvector_store(collection_name: str) -> PGVector:
     """获取 PGVector 向量库单例（与 ruoyi-fastapi 共用 PostgreSQL）。"""
     print("SYNC_SQLALCHEMY_DATABASE_URL: ", SYNC_SQLALCHEMY_DATABASE_URL)
     return PGVector(
         embeddings=get_embeddings(),
-        collection_name=config.collection_name,
+        collection_name=collection_name,
         connection=SYNC_SQLALCHEMY_DATABASE_URL,
         use_jsonb=True,
         embedding_length=config.embedding_length,

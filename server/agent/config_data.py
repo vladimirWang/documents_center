@@ -1,4 +1,5 @@
-collection_name = 'recipes'
+documents_collection_name = 'documents'
+products_collection_name = 'products'
 
 # DashScope text-embedding-v4 向量维度
 embedding_model = 'text-embedding-v4'
