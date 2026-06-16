@@ -19,7 +19,7 @@ def print_prompt(prompt: PromptValue):
 
 
 class RagService(object):
-    def __init__(self):
+    def __init__(self, collection_name: str):
         self.prompt_template = ChatPromptTemplate.from_messages(
             [
                 ("system", "以我提供的参考资料为主， 如下: {context}"),
@@ -29,7 +29,7 @@ class RagService(object):
             ],
         )
         self.chat_model = ChatTongyi(model=config.chat_model_name)
-        self.vector_store = VectorStore()
+        self.vector_store = VectorStore(collection_name)
         self.chain = self.__get_chain()
 
     def __get_chain(self):
@@ -78,7 +78,7 @@ class RagService(object):
         return conversation_chain
 
 if __name__ == "__main__":
-    rag = RagService()
+    rag = RagService(collection_name="documents")
     session_config = {"configurable": {"session_id": "user_1"}}
     result = rag.chain.invoke({"input": "什么是RAG？"}, session_config)
     print("最终结果.length: ", type(result), len(result))

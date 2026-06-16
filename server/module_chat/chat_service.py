@@ -6,14 +6,9 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from agent.multi_agent import dispatch
-from agent.rag import RagService
+# from agent.rag import RagService
 from database.models import AgentChatMessage, ChatSession
 from database.session import SessionLocal
-
-
-@lru_cache(maxsize=1)
-def get_rag_service() -> RagService:
-    return RagService()
 
 
 def _normalize_session_id(session_id: str) -> str:
@@ -32,7 +27,7 @@ def ensure_chat_session(session_id: str, user_id: int) -> str:
 
 def chat_invoke(question: str, session_id: str, user_id: int) -> str:
     ensure_chat_session(session_id, user_id)
-    return dispatch(question, session_id, get_rag_service())
+    return dispatch(question, session_id)
 
 
 def serialize_chat_session(session: ChatSession) -> dict:

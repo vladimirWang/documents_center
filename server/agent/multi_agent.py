@@ -7,6 +7,13 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from agent.sqlalchemy_history_store import get_history
+# from module_chat.chat_service import get_rag_service
+from functools import lru_cache
+
+
+@lru_cache
+def get_rag_service(collection_name: str) -> RagService:
+    return RagService(collection_name)
 
 AGENT_LABELS = {
     "booking": "订票",
@@ -45,15 +52,17 @@ def _run_tcm_agent(question: str, session_id: str, rag: RagService) -> str:
     return rag.chain.invoke({"input": question}, session_config)
 
 
-def dispatch(question: str, session_id: str, rag: RagService) -> str:
+def dispatch(question: str, session_id: str) -> str:
     agent = route(question)
     label = AGENT_LABELS[agent]
 
     if agent == "tcm":
         print("------ 命中 tcm agent ------")
+        rag = get_rag_service(collection_name=config.documents_collection_name)
         answer = _run_tcm_agent(question, session_id, rag)
     elif agent == "product":
         print("------ 命中 product agent ------")
+        rag = get_rag_service(collection_name=config.products_collection_name)
         answer = run_product_agent(question, session_id)
     else:
         print("------ 命中 llm agent ------")
