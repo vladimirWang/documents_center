@@ -101,8 +101,8 @@ def render_chat_page() -> None:
             3. 回到此处提问，客服将基于知识库回答
             """
         )
-        st.page_link("pages/login.py", label="登录", icon="🔐")
-        st.page_link("pages/register.py", label="注册", icon="📝")
+        # st.page_link("pages/login.py", label="登录", icon="🔐")
+        # st.page_link("pages/register.py", label="注册", icon="📝")
         st.info(f"当前用户：{user['email']}（ID: {user['user_id']}）")
         if st.button("退出登录"):
             logout()
