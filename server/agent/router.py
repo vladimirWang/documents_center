@@ -1,7 +1,7 @@
 import agent.config_data as config
 from langchain_community.chat_models.tongyi import ChatTongyi
 
-AGENTS = ("booking", "tcm", "translation")
+AGENTS = ("booking", "product", "tcm", "translation")
 
 RULES: dict[str, list[str]] = {
     "translation": ["翻译", "translate", "译成", "英文", "中文", "日文"],

@@ -1,4 +1,5 @@
 import agent.config_data as config
+from agent.product_agent import run_product_agent
 from agent.rag import RagService
 from agent.router import route
 from langchain_community.chat_models.tongyi import ChatTongyi
@@ -51,6 +52,9 @@ def dispatch(question: str, session_id: str, rag: RagService) -> str:
     if agent == "tcm":
         print("------ 命中 tcm agent ------")
         answer = _run_tcm_agent(question, session_id, rag)
+    elif agent == "product":
+        print("------ 命中 product agent ------")
+        answer = run_product_agent(question, session_id)
     else:
         print("------ 命中 llm agent ------")
         answer = _run_llm_agent(agent, question, session_id)
