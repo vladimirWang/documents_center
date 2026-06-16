@@ -5,6 +5,7 @@ import DocumentDetailPage from './pages/DocumentDetailPage'
 import DocumentsPage from './pages/DocumentsPage'
 import HomePage from './pages/HomePage'
 import ClientPage from './pages/ClientPage'
+import OrderPage from './pages/OrderPage'
 import ProductPage from './pages/ProductPage'
 import ProductCreatePage from './pages/ProductCreatePage'
 import ProductEditPage from './pages/ProductEditPage'
@@ -25,6 +26,7 @@ export default function App() {
             <Route path="/files" element={<FilesPage />} />
             <Route path="/clients" element={<ClientPage />} />
             <Route path="/products" element={<ProductPage />} />
+            <Route path="/orders" element={<OrderPage />} />
             <Route path="/products/new" element={<ProductCreatePage />} />
             <Route path="/products/:id/edit" element={<ProductEditPage />} />
             <Route path="/documents/:id" element={<DocumentDetailPage />} />

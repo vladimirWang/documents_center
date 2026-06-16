@@ -1,5 +1,5 @@
-from sqlalchemy import Boolean, Integer, String, false, DateTime, BigInteger, Float
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import Boolean, Integer, String, false, DateTime, BigInteger, Float, Table, Column, ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
 from database.base_model import Base, TimestampMixin
 from datetime import datetime
@@ -93,5 +93,27 @@ class Product(Base, TimestampMixin):
     name: Mapped[str] = mapped_column(String(30), nullable=False, comment="产品名称")
     description: Mapped[str] = mapped_column(String(255), nullable=False, comment="产品描述")
     price: Mapped[float] = mapped_column(Float, nullable=False, comment="产品价格")
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=False), nullable=False, default=_now)
-    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=False), nullable=False, default=_now, onupdate=_now)
+    order_items: Mapped[list["OrderProduct"]] = relationship(back_populates="product")
+
+class OrderProduct(Base):
+    __tablename__ = "order_product"
+
+    order_id: Mapped[int] = mapped_column(ForeignKey("orders.id"), primary_key=True)
+    product_id: Mapped[int] = mapped_column(ForeignKey("products.id"), primary_key=True)
+    quantity: Mapped[int] = mapped_column(Integer, nullable=False, comment="数量")
+    price: Mapped[float] = mapped_column(Float, nullable=False, comment="价格")
+
+    order: Mapped["Order"] = relationship(back_populates="items")
+    product: Mapped["Product"] = relationship(back_populates="order_items")
+
+class Order(Base, TimestampMixin):
+    __tablename__ = "orders"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, comment="订单ID")
+    total_price: Mapped[float] = mapped_column(Float, nullable=False, comment="总价格")
+    remark: Mapped[str] = mapped_column(String(255), nullable=True, comment="备注")
+
+    items: Mapped[list["OrderProduct"]] = relationship(
+        back_populates="order",
+        cascade="all, delete-orphan",  # 删订单时一并删明细
+    )

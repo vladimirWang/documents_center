@@ -20,6 +20,7 @@ from module_client.client_controller import client_router
 from module_file.file_controller import file_router
 from module_product.product_controller import product_router
 from module_user.user_controller import user_router
+from module_order.order_controller import order_router
 
 try:
     # 自动保证目录一定存在
@@ -54,7 +55,7 @@ app = FastAPI(lifespan=lifespan)
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     print(f"全局异常: {exc}")
-    return JSONResponse(status_code=500, content={"message": "服务器内部错误22"})
+    return JSONResponse(status_code=500, content={"message": "服务器内部错误"})
 @app.get("/")
 def root():
     return {"message": "Hello World222"}
@@ -75,6 +76,7 @@ app.include_router(file_router)
 app.include_router(client_router)
 app.include_router(product_router)
 app.include_router(chat_router)
+app.include_router(order_router)
 # 在创建 app 和 include_router 之后添加
 app.mount("/statics", StaticFiles(directory="statics"), name="static")
 
