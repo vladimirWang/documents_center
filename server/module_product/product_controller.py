@@ -19,6 +19,7 @@ def _serialize_product(product: Product) -> dict:
         "name": product.name,
         "description": product.description,
         "price": product.price,
+        "balance": product.balance,
         "created_at": product.created_at,
         "updated_at": product.updated_at,
     }
@@ -60,3 +61,14 @@ def update_product(
     db.commit()
     db.refresh(db_product)
     return BaseResp.success(data={"product": _serialize_product(db_product)}, msg="产品更新成功")
+
+@product_router.put("/{product_id}/balance")
+def update_product_balance(
+    balance: int,
+    db: Session = Depends(get_db),
+    db_product: Product = Depends(get_db_product),
+):
+    db_product.balance = balance
+    db.commit()
+    db.refresh(db_product)
+    return BaseResp.success(data={"product": _serialize_product(db_product)}, msg="产品库存更新成功")

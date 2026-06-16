@@ -2,11 +2,11 @@ import { Box, Button, Card, Heading, HStack, Spinner, Text } from '@chakra-ui/re
 import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { getApiErrorMessage } from '../api/auth'
-import { updateProduct } from '../api/products'
-import ProductForm from '../components/ProductForm'
+import { updateProductBalance } from '../api/products'
+import ProductBalanceForm from '../components/ProductBalanceForm'
 import { useProduct } from '../hooks/useProducts'
 
-export default function ProductEditPage() {
+export default function ProductBalanceEditPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { data: product, isLoading, error } = useProduct(id)
@@ -14,7 +14,7 @@ export default function ProductEditPage() {
   const [message, setMessage] = useState('')
   const [errorMsg, setErrorMsg] = useState('')
 
-  const handleSubmit = async (payload: Parameters<typeof updateProduct>[1]) => {
+  const handleSubmit = async (payload: Parameters<typeof updateProductBalance>[1]) => {
     if (!id) return
 
     setSubmitting(true)
@@ -22,11 +22,11 @@ export default function ProductEditPage() {
     setErrorMsg('')
 
     try {
-      const result = await updateProduct(Number(id), payload)
+      const result = await updateProductBalance(Number(id), payload)
       setMessage(result.message)
       navigate('/products')
     } catch (err) {
-      setErrorMsg(getApiErrorMessage(err, '更新产品失败'))
+      setErrorMsg(getApiErrorMessage(err, '更新库存失败'))
     } finally {
       setSubmitting(false)
     }
@@ -60,28 +60,27 @@ export default function ProductEditPage() {
       </Button>
 
       <Heading size="lg" mb={2}>
-        编辑产品
+        修改库存
       </Heading>
+      <Text color="gray.600" mb={2}>
+        产品：{product.name}
+      </Text>
       <Text color="gray.600" mb={8}>
-        名称和价格为必填项
+        当前库存：{product.balance ?? 0}
       </Text>
 
       <HStack gap={3} mb={6}>
-        <Button asChild size="sm" variant="outline" colorPalette="blue">
-          <Link to={`/products/${product.id}/balance`}>修改库存</Link>
+        <Button asChild size="sm" variant="outline">
+          <Link to={`/products/${product.id}/edit`}>编辑产品信息</Link>
         </Button>
       </HStack>
 
       <Card.Root maxW="xl">
         <Card.Body>
-          <ProductForm
+          <ProductBalanceForm
             key={product.id}
-            initialValues={{
-              name: product.name,
-              description: product.description,
-              price: product.price,
-            }}
-            submitLabel="保存修改"
+            initialBalance={product.balance ?? 0}
+            submitLabel="保存库存"
             loading={submitting}
             onSubmit={handleSubmit}
           />

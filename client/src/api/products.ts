@@ -6,8 +6,13 @@ export interface ProductItem {
   name: string
   description: string
   price: number
+  balance: number
   created_at?: string
   updated_at?: string
+}
+
+export interface ProductBalancePayload {
+  balance: number
 }
 
 export interface ProductFormPayload {
@@ -41,6 +46,21 @@ export const updateProduct = async (productId: number, payload: ProductFormPaylo
   const { data } = await apiClient.put<ApiResponse<{ product: ProductItem }>>(
     `/product/${productId}`,
     payload,
+  )
+  if (data.code !== 200) {
+    throw new Error(data.message)
+  }
+  return data
+}
+
+export const updateProductBalance = async (
+  productId: number,
+  payload: ProductBalancePayload,
+) => {
+  const { data } = await apiClient.put<ApiResponse<{ product: ProductItem }>>(
+    `/product/${productId}/balance`,
+    null,
+    { params: payload },
   )
   if (data.code !== 200) {
     throw new Error(data.message)

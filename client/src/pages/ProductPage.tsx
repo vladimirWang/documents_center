@@ -59,6 +59,7 @@ export default function ProductPage() {
                 <Table.ColumnHeader>名称</Table.ColumnHeader>
                 <Table.ColumnHeader>描述</Table.ColumnHeader>
                 <Table.ColumnHeader>价格</Table.ColumnHeader>
+                <Table.ColumnHeader>库存</Table.ColumnHeader>
                 <Table.ColumnHeader>更新时间</Table.ColumnHeader>
                 <Table.ColumnHeader>操作</Table.ColumnHeader>
               </Table.Row>
@@ -75,11 +76,17 @@ export default function ProductPage() {
                     </Text>
                   </Table.Cell>
                   <Table.Cell>{formatPrice(product.price)}</Table.Cell>
+                  <Table.Cell>{product.balance ?? 0}</Table.Cell>
                   <Table.Cell>{formatDate(product.updated_at)}</Table.Cell>
                   <Table.Cell>
-                    <Button asChild size="xs" variant="outline" colorPalette="blue">
-                      <Link to={`/products/${product.id}/edit`}>编辑</Link>
-                    </Button>
+                    <HStack gap={2}>
+                      <Button asChild size="xs" variant="outline" colorPalette="blue">
+                        <Link to={`/products/${product.id}/edit`}>编辑</Link>
+                      </Button>
+                      <Button asChild size="xs" variant="outline">
+                        <Link to={`/products/${product.id}/balance`}>库存</Link>
+                      </Button>
+                    </HStack>
                   </Table.Cell>
                 </Table.Row>
               ))}

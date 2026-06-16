@@ -79,6 +79,7 @@ class Product(Base, TimestampMixin):
     description: Mapped[str] = mapped_column(String(255), nullable=False, comment="产品描述")
     price: Mapped[float] = mapped_column(Float, nullable=False, comment="产品价格")
     order_items: Mapped[list["OrderProduct"]] = relationship(back_populates="product")
+    balance: Mapped[int] = mapped_column(Integer, nullable=False, comment="库存")
 
 class OrderProduct(Base, TimestampMixin):
     __tablename__ = "order_product"
