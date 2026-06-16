@@ -4,6 +4,7 @@ from uuid import UUID
 
 from sqlalchemy import select
 
+from agent.multi_agent import dispatch
 from agent.rag import RagService
 from database.models import ChatSession
 from database.session import SessionLocal
@@ -30,8 +31,4 @@ def ensure_chat_session(session_id: str, user_id: int | None = None) -> str:
 
 
 def chat_invoke(question: str, session_id: str) -> str:
-    # sid = ensure_chat_session(
-    #     session_id or os.getenv("DEFAULT_CHAT_SESSION_ID", "00000000-0000-0000-0000-000000000001")
-    # )
-    session_config = {"configurable": {"session_id": session_id}}
-    return get_rag_service().chain.invoke({"input": question}, session_config)
+    return dispatch(question, session_id, get_rag_service())
