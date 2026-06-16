@@ -10,7 +10,7 @@ from langchain_core.messages import HumanMessage, SystemMessage, ToolMessage
 from langchain_core.tools import tool
 from module_order.order_service import create_order_data, serialize_order
 from module_order.order_vo import OrderCreate, OrderItemCreate, PrepareOrderMultipleProducts
-from sqlalchemy import select
+from sqlalchemy import select, and_
 from typing import Annotated
 
 SYSTEM_PROMPT = """你是智能买手，帮助用户查询商品并代购下单。
@@ -20,7 +20,7 @@ SYSTEM_PROMPT = """你是智能买手，帮助用户查询商品并代购下单�
 3. 只有用户在下一轮对话中明确表示「确认」「好的」「下单」等时，才调用 confirm_order 真正下单。
 4. 禁止在同一轮对话里连续调用 prepare_order 和 confirm_order。"""
 
-_pending_orders: dict[str, dict] = {}
+_pending_orders: dict[str, list[dict]] = {}
 _session_id_ctx: contextvars.ContextVar[str | None] = contextvars.ContextVar(
     "product_agent_session_id", default=None
 )
@@ -37,51 +37,44 @@ def _current_session_id() -> str:
 def list_products() -> str:
     """列出所有可购商品，返回 id、名称、价格。"""
     with SessionLocal() as db:
-        products = db.scalars(select(Product).order_by(Product.id)).all()
-        data = [{"id": p.id, "name": p.name, "price": p.price} for p in products]
+        products = db.scalars(select(Product).where(Product.balance > 0).order_by(Product.id)).all()
+        data = [{"id": p.id, "name": p.name, "price": p.price, "balance": p.balance} for p in products]
     return json.dumps(data, ensure_ascii=False)
 
 # def prepare_order(items: PrepareOrderMultipleProducts) -> str:
-
+# def prepare_order(product_id: int, quantity: int, remark: str | None = None) -> str:
 @tool
-def prepare_order(product_id: int, quantity: int, remark: str | None = None) -> str:
+def prepare_order(items: PrepareOrderMultipleProducts) -> str:
     """生成待确认订单，不真正下单。用户确认后再调用 confirm_order。"""
     # for product in items.products:
     #     print(f"product_id: {product.product_id}, quantity: {product.quantity}")
     with SessionLocal() as db:
-        # stmt = select(Product).where(Product.id.in_(item.product_id for item in items.products))
-        # products = db.scalars(stmt)
-        # for product in products:
-        #     print(f"product_id: {product.id}, name: {product.name}, price: {product.price}")
-        # resp = {
-        #     "status": "pending_confirmation",
-        #     "summary": items.model_dump(),
-        #     "message": f"请确认：{1} x{2}，单价 {3}，合计 {3}。回复「确认」后下单。",
-        # }
+        stmt = select(Product).where(and_(Product.id.in_(item.product_id for item in items.products), Product.balance > 0))
+        products = db.scalars(stmt).all()
+        if len(products) != len(items.products):
+            return json.dumps({"error": "部分商品不存在"}, ensure_ascii=False)
 
-        # return json.dumps(resp, ensure_ascii=False)
-        product = db.get(Product, product_id)
-        if product is None:
-            return json.dumps({"error": "商品不存在"}, ensure_ascii=False)
-
-        total_price = product.price * quantity
-        draft = {
-            "product_id": product_id,
-            "product_name": product.name,
-            "quantity": quantity,
-            "price": product.price,
-            "total_price": total_price,
-            "remark": remark,
-        }
+        product_map = {product.id: product for product in products}
+        total_price = 0
+        draft = []
+        for product in items.products:
+            draft.append({
+                "product_id": product.product_id,
+                "product_name": product_map[product.product_id].name,
+                "quantity": product.quantity,
+                "price": product_map[product.product_id].price,
+            })
+            total_price += product_map[product.product_id].price * product.quantity
+        
         _pending_orders[_current_session_id()] = draft
-        return json.dumps(
-            {
-                "status": "pending_confirmation",
-                "summary": draft,
-                "message": f"请确认：{product.name} x{quantity}，单价 {product.price}，合计 {total_price}。回复「确认」后下单。",
-            },
-            ensure_ascii=False,
-        )
+        msg_item = [f"{i['product_name']} x{i['quantity']}，单价 {i['price']}" for i in draft]
+        resp = {
+            "status": "pending_confirmation",
+            "summary": items.model_dump(),
+            "message": f"请确认： {', '.join(msg_item)}，合计 {total_price}。回复「确认」后下单。",
+        }
+
+        return json.dumps(resp, ensure_ascii=False)
 
 
 @tool
@@ -97,10 +90,10 @@ def confirm_order() -> str:
             OrderCreate(
                 items=[
                     OrderItemCreate(
-                        product_id=draft["product_id"],
-                        quantity=draft["quantity"],
-                        price=draft["price"],
-                    )
+                        product_id=draft_item["product_id"],
+                        quantity=draft_item["quantity"],
+                        price=draft_item["price"],
+                    ) for draft_item in draft
                 ],
                 remark=draft.get("remark", ""),
             ),
