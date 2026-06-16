@@ -1,6 +1,6 @@
 import contextvars
 import json
-
+from pydantic import BaseModel, Field
 import agent.config_data as config
 from agent.sqlalchemy_history_store import get_history
 from database.models import Product
@@ -9,8 +9,9 @@ from langchain_community.chat_models.tongyi import ChatTongyi
 from langchain_core.messages import HumanMessage, SystemMessage, ToolMessage
 from langchain_core.tools import tool
 from module_order.order_service import create_order_data, serialize_order
-from module_order.order_vo import OrderCreate, OrderItemCreate
+from module_order.order_vo import OrderCreate, OrderItemCreate, PrepareOrderMultipleProducts
 from sqlalchemy import select
+from typing import Annotated
 
 SYSTEM_PROMPT = """你是智能买手，帮助用户查询商品并代购下单。
 流程：
@@ -40,11 +41,25 @@ def list_products() -> str:
         data = [{"id": p.id, "name": p.name, "price": p.price} for p in products]
     return json.dumps(data, ensure_ascii=False)
 
+# def prepare_order(items: PrepareOrderMultipleProducts) -> str:
 
 @tool
-def prepare_order(product_id: int, quantity: int, remark: str = "") -> str:
+def prepare_order(product_id: int, quantity: int, remark: str | None = None) -> str:
     """生成待确认订单，不真正下单。用户确认后再调用 confirm_order。"""
+    # for product in items.products:
+    #     print(f"product_id: {product.product_id}, quantity: {product.quantity}")
     with SessionLocal() as db:
+        # stmt = select(Product).where(Product.id.in_(item.product_id for item in items.products))
+        # products = db.scalars(stmt)
+        # for product in products:
+        #     print(f"product_id: {product.id}, name: {product.name}, price: {product.price}")
+        # resp = {
+        #     "status": "pending_confirmation",
+        #     "summary": items.model_dump(),
+        #     "message": f"请确认：{1} x{2}，单价 {3}，合计 {3}。回复「确认」后下单。",
+        # }
+
+        # return json.dumps(resp, ensure_ascii=False)
         product = db.get(Product, product_id)
         if product is None:
             return json.dumps({"error": "商品不存在"}, ensure_ascii=False)

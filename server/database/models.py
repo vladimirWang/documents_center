@@ -54,7 +54,7 @@ class ChatSession(Base):
     user_id: Mapped[int] = mapped_column(Integer, nullable=False)
 
 
-class AgentChatMessage(Base):
+class AgentChatMessage(Base, TimestampMixin):
     """映射 ruoyi-backend 管理的 agent_chat_message 表。"""
 
     __tablename__ = "agent_chat_message"
@@ -67,21 +67,6 @@ class AgentChatMessage(Base):
         index=True,
     )
     payload: Mapped[dict] = mapped_column(JSONB, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=False),
-        nullable=False,
-        default=_now,
-    )
-    updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=False),
-        nullable=False,
-        default=_now,
-        onupdate=_now,
-    )
-    deleted_at: Mapped[Optional[datetime]] = mapped_column(
-        DateTime(timezone=False),
-        nullable=True,
-    )
 
 class Product(Base, TimestampMixin):
     """
@@ -95,7 +80,7 @@ class Product(Base, TimestampMixin):
     price: Mapped[float] = mapped_column(Float, nullable=False, comment="产品价格")
     order_items: Mapped[list["OrderProduct"]] = relationship(back_populates="product")
 
-class OrderProduct(Base):
+class OrderProduct(Base, TimestampMixin):
     __tablename__ = "order_product"
 
     order_id: Mapped[int] = mapped_column(ForeignKey("orders.id"), primary_key=True)
