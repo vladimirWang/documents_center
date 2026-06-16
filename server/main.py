@@ -18,6 +18,7 @@ from grpc_server.server import DEFAULT_HOST, DEFAULT_PORT, create_server
 from module_chat.chat_controller import chat_router
 from module_client.client_controller import client_router
 from module_file.file_controller import file_router
+from module_product.product_controller import product_router
 from module_user.user_controller import user_router
 
 try:
@@ -72,6 +73,7 @@ def response():
 app.include_router(user_router)
 app.include_router(file_router)
 app.include_router(client_router)
+app.include_router(product_router)
 app.include_router(chat_router)
 # 在创建 app 和 include_router 之后添加
 app.mount("/statics", StaticFiles(directory="statics"), name="static")

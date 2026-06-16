@@ -1,0 +1,98 @@
+import {
+  Box,
+  Button,
+  Card,
+  Heading,
+  HStack,
+  Spinner,
+  Table,
+  Text,
+} from '@chakra-ui/react'
+import { Link } from 'react-router-dom'
+import { useProducts } from '../hooks/useProducts'
+
+const formatDate = (value?: string) => {
+  if (!value) return '-'
+  return new Date(value).toLocaleString('zh-CN')
+}
+
+const formatPrice = (price: number) => `¥${price.toFixed(2)}`
+
+export default function ProductPage() {
+  const { data: products, isLoading, error } = useProducts()
+
+  if (isLoading) {
+    return (
+      <Box textAlign="center" py={20}>
+        <Spinner size="lg" color="blue.500" />
+      </Box>
+    )
+  }
+
+  if (error) {
+    return (
+      <Text color="red.500" textAlign="center" py={20}>
+        加载产品列表失败
+      </Text>
+    )
+  }
+
+  return (
+    <Box>
+      <HStack justify="space-between" mb={8}>
+        <Box>
+          <Heading size="lg" mb={2}>
+            产品管理
+          </Heading>
+          <Text color="gray.600">共 {products?.length ?? 0} 个产品</Text>
+        </Box>
+        <Button asChild colorPalette="blue">
+          <Link to="/products/new">新建产品</Link>
+        </Button>
+      </HStack>
+
+      <Card.Root>
+        <Card.Body p={0}>
+          <Table.Root size="sm">
+            <Table.Header>
+              <Table.Row>
+                <Table.ColumnHeader>名称</Table.ColumnHeader>
+                <Table.ColumnHeader>描述</Table.ColumnHeader>
+                <Table.ColumnHeader>价格</Table.ColumnHeader>
+                <Table.ColumnHeader>更新时间</Table.ColumnHeader>
+                <Table.ColumnHeader>操作</Table.ColumnHeader>
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
+              {products?.map((product) => (
+                <Table.Row key={product.id}>
+                  <Table.Cell>
+                    <Text fontWeight="medium">{product.name}</Text>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <Text fontSize="sm" color="gray.600" maxW="320px" truncate>
+                      {product.description || '-'}
+                    </Text>
+                  </Table.Cell>
+                  <Table.Cell>{formatPrice(product.price)}</Table.Cell>
+                  <Table.Cell>{formatDate(product.updated_at)}</Table.Cell>
+                  <Table.Cell>
+                    <Button asChild size="xs" variant="outline" colorPalette="blue">
+                      <Link to={`/products/${product.id}/edit`}>编辑</Link>
+                    </Button>
+                  </Table.Cell>
+                </Table.Row>
+              ))}
+            </Table.Body>
+          </Table.Root>
+
+          {!products?.length && (
+            <Text textAlign="center" color="gray.500" py={10}>
+              暂无产品，请先创建
+            </Text>
+          )}
+        </Card.Body>
+      </Card.Root>
+    </Box>
+  )
+}

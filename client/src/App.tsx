@@ -5,6 +5,9 @@ import DocumentDetailPage from './pages/DocumentDetailPage'
 import DocumentsPage from './pages/DocumentsPage'
 import HomePage from './pages/HomePage'
 import ClientPage from './pages/ClientPage'
+import ProductPage from './pages/ProductPage'
+import ProductCreatePage from './pages/ProductCreatePage'
+import ProductEditPage from './pages/ProductEditPage'
 import FilesPage from './pages/FilesPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
@@ -21,6 +24,9 @@ export default function App() {
             <Route path="/documents" element={<DocumentsPage />} />
             <Route path="/files" element={<FilesPage />} />
             <Route path="/clients" element={<ClientPage />} />
+            <Route path="/products" element={<ProductPage />} />
+            <Route path="/products/new" element={<ProductCreatePage />} />
+            <Route path="/products/:id/edit" element={<ProductEditPage />} />
             <Route path="/documents/:id" element={<DocumentDetailPage />} />
           </Route>
         </Route>

@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Integer, String, false, DateTime, BigInteger
+from sqlalchemy import Boolean, Integer, String, false, DateTime, BigInteger, Float
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
 from database.base_model import Base, TimestampMixin
@@ -82,3 +82,16 @@ class AgentChatMessage(Base):
         DateTime(timezone=False),
         nullable=True,
     )
+
+class Product(Base, TimestampMixin):
+    """
+    产品模型
+    """
+
+    __tablename__ = "products"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, comment="产品ID")
+    name: Mapped[str] = mapped_column(String(30), nullable=False, comment="产品名称")
+    description: Mapped[str] = mapped_column(String(255), nullable=False, comment="产品描述")
+    price: Mapped[float] = mapped_column(Float, nullable=False, comment="产品价格")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=False), nullable=False, default=_now)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=False), nullable=False, default=_now, onupdate=_now)

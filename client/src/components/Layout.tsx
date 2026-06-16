@@ -8,6 +8,7 @@ const navItems = [
   { to: '/documents', label: '我的文档' },
   { to: '/files', label: '我的文件' },
   { to: '/clients', label: '客户管理' },
+  { to: '/products', label: '产品管理' },
 ]
 
 export default function Layout() {
