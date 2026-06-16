@@ -64,7 +64,7 @@ def render_chat_page() -> None:
 
     title_col, help_col, action_col = st.columns([7.2, 0.5, 1], vertical_alignment="center")
     with title_col:
-        st.title("💬 文档中心智能客服")
+        st.title("💬 智能助手")
         st.caption("基于知识库的智能问答，请先在后管系统中上传并向量化文档")
     with help_col:
         st.button("ℹ️", help=USAGE_HELP, key="usage_help", type="tertiary")
@@ -131,7 +131,7 @@ def render_chat_page() -> None:
             st.error(f"加载会话失败：{e}")
 
         st.divider()
-        st.info(f"当前用户：{user['email']}（ID: {user['user_id']}）")
+        # st.info(f"当前用户：{user['email']}（ID: {user['user_id']}）")
         if st.button("退出登录"):
             logout()
             st.switch_page("pages/login.py")
