@@ -9,12 +9,14 @@ from agent.sqlalchemy_history_store import get_history
 
 AGENT_LABELS = {
     "booking": "订票",
+    "product": "智能买手",
     "tcm": "中医养生",
     "translation": "翻译",
 }
 
 PROMPTS = {
     "booking": "你是订票助手，帮助用户查询和预订机票、火车票、酒店。无法真实下单时，说明这是演示并给出操作建议。",
+    "product": "你是智能买手，帮助用户查询代购商品。",
     "translation": "你是翻译助手，准确翻译用户提供的文本，并简要说明源语言和目标语言。",
 }
 

@@ -5,6 +5,7 @@ AGENTS = ("booking", "tcm", "translation")
 
 RULES: dict[str, list[str]] = {
     "translation": ["翻译", "translate", "译成", "英文", "中文", "日文"],
+    "product": ["购买", "买", "下单", "商品", "代购"],
     "booking": ["订票", "机票", "火车", "航班", "酒店", "车票", "买票"],
     "tcm": ["中医", "养生", "调理", "食疗", "穴位", "经络", "体质"],
 }
@@ -24,6 +25,7 @@ def route_by_llm(question: str) -> str:
     prompt = (
         "将用户问题分类为以下之一，只回复一个词：booking、tcm、translation\n"
         "- booking: 订票、出行、机票火车酒店\n"
+        "- product: 购买、买、下单、商品、代购\n"
         "- tcm: 中医、养生、健康调理\n"
         "- translation: 翻译、语言转换\n\n"
         f"用户问题：{question}"
