@@ -47,8 +47,10 @@ def dispatch(question: str, session_id: str, rag: RagService) -> str:
     label = AGENT_LABELS[agent]
 
     if agent == "tcm":
+        print("------ 命中 tcm agent ------")
         answer = _run_tcm_agent(question, session_id, rag)
     else:
+        print("------ 命中 llm agent ------")
         answer = _run_llm_agent(agent, question, session_id)
 
     return f"【{label} Agent】\n{answer}"

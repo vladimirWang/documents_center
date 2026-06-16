@@ -19,16 +19,17 @@ def _normalize_session_id(session_id: str) -> str:
     return str(UUID(session_id))
 
 
-def ensure_chat_session(session_id: str, user_id: int | None = None) -> str:
+def ensure_chat_session(session_id: str, user_id: int) -> str:
     sid = _normalize_session_id(session_id)
-    uid = user_id or int(os.getenv("DEFAULT_CHAT_USER_ID", "1"))
+    # uid = user_id or int(os.getenv("DEFAULT_CHAT_USER_ID", "1"))
     with SessionLocal() as db:
         exists = db.scalar(select(ChatSession.id).where(ChatSession.id == sid))
         if exists is None:
-            db.add(ChatSession(id=sid, user_id=uid))
+            db.add(ChatSession(id=sid, user_id=user_id))
             db.commit()
     return sid
 
 
-def chat_invoke(question: str, session_id: str) -> str:
+def chat_invoke(question: str, session_id: str, user_id: int) -> str:
+    ensure_chat_session(session_id, user_id)
     return dispatch(question, session_id, get_rag_service())

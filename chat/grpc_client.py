@@ -16,12 +16,16 @@ def _get_target() -> str:
     return f"{host}:{port}"
 
 
-def ask_chat(question: str, session_id: str) -> str:
+def ask_chat(question: str, session_id: str, user_id: int) -> str:
     with grpc.insecure_channel(_get_target()) as channel:
         stub = chat_pb2_grpc.ChatServiceStub(channel)
         try:
             response = stub.Ask(
-                chat_pb2.ChatRequest(question=question, session_id=session_id),
+                chat_pb2.ChatRequest(
+                    question=question,
+                    session_id=session_id,
+                    user_id=user_id,
+                ),
                 timeout=120,
             )
         except grpc.RpcError as exc:

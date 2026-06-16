@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends
+from deps.verify_token import verify_token
 from sqlalchemy.orm import Session
 from database.session import get_db
 from agent.rag import RagService
@@ -12,8 +13,8 @@ chat_router = APIRouter(
 )
 
 @chat_router.post("/")
-def chat(request: ChatRequest, db: Session = Depends(get_db)):
-    result = chat_invoke(request.question, request.session_id)
+def chat(request: ChatRequest, db: Session = Depends(get_db), user_info: dict = Depends(verify_token),):
+    result = chat_invoke(request.question, request.session_id, user_info["user_id"])
     j = request.model_dump()
     
     print("request: ", j)

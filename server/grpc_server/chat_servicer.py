@@ -18,8 +18,14 @@ class ChatServicer(chat_pb2_grpc.ChatServiceServicer):
             context.set_details("session_id 不能为空")
             return chat_pb2.ChatResponse(code=400, message="session_id 不能为空")
 
+        user_id = request.user_id
+        if user_id <= 0:
+            context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
+            context.set_details("user_id 无效")
+            return chat_pb2.ChatResponse(code=400, message="user_id 无效")
+
         try:
-            answer = chat_invoke(question, session_id)
+            answer = chat_invoke(question, session_id, user_id)
             return chat_pb2.ChatResponse(code=200, message="ok", answer=answer)
         except Exception as exc:
             context.set_code(grpc.StatusCode.INTERNAL)

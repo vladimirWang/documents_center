@@ -5,6 +5,7 @@ import uuid
 
 import streamlit as st
 
+from auth import logout, require_login
 from rag_service import ask
 
 SESSION_KEY = "session_id"
@@ -36,6 +37,7 @@ def _start_new_conversation() -> None:
 
 
 def render_chat_page() -> None:
+    user = require_login()
     session_id = _current_session_id()
     messages = _current_messages()
 
@@ -48,7 +50,7 @@ def render_chat_page() -> None:
         if st.button("➕", help="新对话", use_container_width=True):
             _start_new_conversation()
 
-    st.caption(f"当前会话：{session_id[:8]}…")
+    st.caption(f"当前用户：{user['email']} · 会话：{session_id[:8]}…")
 
     for message in messages:
         with st.chat_message(message["role"]):
@@ -67,7 +69,8 @@ def render_chat_page() -> None:
         with st.chat_message("assistant"):
             with st.spinner("思考中..."):
                 try:
-                    result = ask(prompt, session_id)
+                    print("----user_id----: ", user["user_id"])
+                    result = ask(prompt, session_id, user["user_id"])
                     st.markdown(result["answer"])
                     if result["sources"]:
                         with st.expander("参考来源"):
@@ -98,9 +101,12 @@ def render_chat_page() -> None:
             3. 回到此处提问，客服将基于知识库回答
             """
         )
-        st.page_link("pages/register.py", label="客户注册", icon="📝")
-        if st.session_state.get("registered_client"):
-            st.info(f"当前客户：{st.session_state.registered_client['email']}")
+        st.page_link("pages/login.py", label="登录", icon="🔐")
+        st.page_link("pages/register.py", label="注册", icon="📝")
+        st.info(f"当前用户：{user['email']}（ID: {user['user_id']}）")
+        if st.button("退出登录"):
+            logout()
+            st.switch_page("pages/login.py")
         if st.button("清空当前对话"):
             messages.clear()
             st.rerun()
