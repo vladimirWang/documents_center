@@ -1,7 +1,5 @@
 #!/bin/bash
 
-resp=$(curl -sS -X POST http://localhost:8002/ \
--d '{"username":"mike", "mobile":"13800138011"}' \
--H "Content-Type: application/json")
+resp=$(curl -sS -X GET http://localhost:8000/chat/sessions)
 
 echo "resp: $resp"

@@ -47,7 +47,7 @@ class Client(Base, TimestampMixin):
     mobile: Mapped[str] = mapped_column(String(255), nullable=False, comment="电话")
     password: Mapped[str] = mapped_column(String(255), nullable=False, comment="密码")
 
-class ChatSession(Base):
+class ChatSession(Base, TimestampMixin):
     __tablename__ = "chat_session"
 
     id: Mapped[str] = mapped_column(PG_UUID(as_uuid=False), primary_key=True)

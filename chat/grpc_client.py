@@ -38,6 +38,64 @@ def ask_chat(question: str, session_id: str, user_id: int) -> str:
         return response.answer
 
 
+def list_user_sessions(user_id: int) -> list[dict]:
+    with grpc.insecure_channel(_get_target()) as channel:
+        stub = chat_pb2_grpc.ChatServiceStub(channel)
+        try:
+            response = stub.GetCurrentUserSessions(
+                chat_pb2.GetCurrentUserSessionsRequest(user_id=user_id),
+                timeout=10,
+            )
+        except grpc.RpcError as exc:
+            detail = exc.details() or "获取会话列表失败"
+            raise RuntimeError(detail) from exc
+
+        if response.code != 200:
+            raise RuntimeError(response.message or "获取会话列表失败")
+
+        return [
+            {
+                "id": session.id,
+                "user_id": session.user_id,
+                "created_at": session.created_at,
+                "updated_at": session.updated_at,
+            }
+            for session in response.sessions
+        ]
+
+
+def get_chat_session_by_id(session_id: str, user_id: int) -> dict:
+    with grpc.insecure_channel(_get_target()) as channel:
+        stub = chat_pb2_grpc.ChatServiceStub(channel)
+        try:
+            response = stub.GetChatSessionById(
+                chat_pb2.GetChatSessionByIdRequest(
+                    session_id=session_id,
+                    user_id=user_id,
+                ),
+                timeout=10,
+            )
+        except grpc.RpcError as exc:
+            detail = exc.details() or "获取会话详情失败"
+            raise RuntimeError(detail) from exc
+
+        if response.code != 200:
+            raise RuntimeError(response.message or "获取会话详情失败")
+
+        return {
+            "session": {
+                "id": response.session.id,
+                "user_id": response.session.user_id,
+                "created_at": response.session.created_at,
+                "updated_at": response.session.updated_at,
+            },
+            "messages": [
+                {"role": msg.role, "content": msg.content, "sources": []}
+                for msg in response.messages
+            ],
+        }
+
+
 def register_client(email: str, password: str) -> dict:
     with grpc.insecure_channel(_get_target()) as channel:
         stub = client_pb2_grpc.ClientServiceStub(channel)
