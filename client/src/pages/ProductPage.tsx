@@ -1,4 +1,5 @@
 import {
+  Badge,
   Box,
   Button,
   Card,
@@ -60,6 +61,7 @@ export default function ProductPage() {
                 <Table.ColumnHeader>描述</Table.ColumnHeader>
                 <Table.ColumnHeader>价格</Table.ColumnHeader>
                 <Table.ColumnHeader>库存</Table.ColumnHeader>
+                <Table.ColumnHeader>向量化</Table.ColumnHeader>
                 <Table.ColumnHeader>更新时间</Table.ColumnHeader>
                 <Table.ColumnHeader>操作</Table.ColumnHeader>
               </Table.Row>
@@ -68,7 +70,14 @@ export default function ProductPage() {
               {products?.map((product) => (
                 <Table.Row key={product.id}>
                   <Table.Cell>
-                    <Text fontWeight="medium">{product.name}</Text>
+                    <Text
+                      asChild
+                      fontWeight="medium"
+                      color="blue.600"
+                      _hover={{ textDecoration: 'underline' }}
+                    >
+                      <Link to={`/products/${product.id}`}>{product.name}</Link>
+                    </Text>
                   </Table.Cell>
                   <Table.Cell>
                     <Text fontSize="sm" color="gray.600" maxW="320px" truncate>
@@ -77,9 +86,17 @@ export default function ProductPage() {
                   </Table.Cell>
                   <Table.Cell>{formatPrice(product.price)}</Table.Cell>
                   <Table.Cell>{product.balance ?? 0}</Table.Cell>
+                  <Table.Cell>
+                    <Badge colorPalette={product.vectorized ? 'green' : 'gray'}>
+                      {product.vectorized ? '已向量化' : '未向量化'}
+                    </Badge>
+                  </Table.Cell>
                   <Table.Cell>{formatDate(product.updated_at)}</Table.Cell>
                   <Table.Cell>
                     <HStack gap={2}>
+                      <Button asChild size="xs" variant="outline">
+                        <Link to={`/products/${product.id}`}>详情</Link>
+                      </Button>
                       <Button asChild size="xs" variant="outline" colorPalette="blue">
                         <Link to={`/products/${product.id}/edit`}>编辑</Link>
                       </Button>

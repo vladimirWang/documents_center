@@ -10,6 +10,7 @@ import OrderPage from './pages/OrderPage'
 import OrderCreatePage from './pages/OrderCreatePage'
 import ProductPage from './pages/ProductPage'
 import ProductCreatePage from './pages/ProductCreatePage'
+import ProductDetailPage from './pages/ProductDetailPage'
 import ProductEditPage from './pages/ProductEditPage'
 import ProductBalanceEditPage from './pages/ProductBalanceEditPage'
 import FilesPage from './pages/FilesPage'
@@ -33,6 +34,7 @@ export default function App() {
             <Route path="/orders" element={<OrderPage />} />
             <Route path="/orders/new" element={<OrderCreatePage />} />
             <Route path="/products/new" element={<ProductCreatePage />} />
+            <Route path="/products/:id" element={<ProductDetailPage />} />
             <Route path="/products/:id/edit" element={<ProductEditPage />} />
             <Route path="/products/:id/balance" element={<ProductBalanceEditPage />} />
             <Route path="/documents/:id" element={<DocumentDetailPage />} />

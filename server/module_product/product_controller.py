@@ -21,6 +21,7 @@ def _serialize_product(product: Product) -> dict:
         "description": product.description,
         "price": product.price,
         "balance": product.balance,
+        "vectorized": product.vectorized,
         "created_at": product.created_at,
         "updated_at": product.updated_at,
     }

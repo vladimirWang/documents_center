@@ -7,6 +7,7 @@ export interface ProductItem {
   description: string
   price: number
   balance: number
+  vectorized: boolean
   created_at?: string
   updated_at?: string
 }
