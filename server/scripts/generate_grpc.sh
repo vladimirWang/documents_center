@@ -12,6 +12,9 @@ if [ ${#proto_files[@]} -eq 0 ]; then
   exit 1
 fi
 
+mkdir -p ./grpc_generated
+touch ./grpc_generated/__init__.py
+
 uv run python -m grpc_tools.protoc \
   -I./protos \
   --python_out=./grpc_generated \
