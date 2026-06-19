@@ -3,4 +3,4 @@ set -e
 cd "$(dirname "$0")"
 
 bash scripts/generate_grpc.sh
-uv run python main.py
+uv run --env-file .env.dev python main.py
