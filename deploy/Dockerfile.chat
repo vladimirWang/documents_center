@@ -1,0 +1,36 @@
+FROM python:3.13-slim-bookworm
+
+WORKDIR /app
+
+ENV UV_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple
+
+RUN pip install --no-cache-dir uv==0.11.7 \
+  -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+# 生成 gRPC stub（chat 依赖 server/grpc_generated）
+COPY server/pyproject.toml server/uv.lock ./server/
+WORKDIR /app/server
+RUN uv sync --frozen --no-dev
+
+COPY server/protos ./protos
+COPY server/scripts/generate_grpc.sh ./scripts/generate_grpc.sh
+RUN bash scripts/generate_grpc.sh
+
+# 安装 chat 依赖
+WORKDIR /app/chat
+COPY chat/pyproject.toml chat/uv.lock ./
+RUN uv sync --frozen --no-dev
+
+COPY chat/ ./
+
+EXPOSE 8501
+
+CMD [
+  "uv", "run", "streamlit", "run", "app.py",
+  "--server.address=0.0.0.0",
+  "--server.port=8501",
+  "--server.baseUrlPath=chat",
+  "--server.headless=true",
+  "--browser.gatherUsageStats=false",
+  "--server.fileWatcherType=none"
+]

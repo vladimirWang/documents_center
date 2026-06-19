@@ -6,5 +6,4 @@
 **/.env.prod
 server/statics/uploads
 server/grpc_generated
-chat
 *.md

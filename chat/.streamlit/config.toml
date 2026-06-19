@@ -1,2 +1,11 @@
 [client]
 showSidebarNavigation = false
+
+[server]
+headless = true
+baseUrlPath = "chat"
+enableCORS = false
+enableXsrfProtection = false
+
+[browser]
+gatherUsageStats = false
