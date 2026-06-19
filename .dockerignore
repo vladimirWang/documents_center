@@ -1,0 +1,10 @@
+**/.venv
+**/__pycache__
+**/.git
+**/.env
+**/.env.dev
+**/.env.prod
+server/statics/uploads
+server/grpc_generated
+chat
+*.md

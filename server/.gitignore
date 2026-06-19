@@ -5,3 +5,4 @@ grpc_generated/
 .env
 .env.dev
 .env.prod
+.env.docker

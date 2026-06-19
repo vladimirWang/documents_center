@@ -1,0 +1,33 @@
+services:
+  nginx:
+    build:
+      context: ./deploy/nginx
+    ports:
+      - "6599:80"
+    volumes:
+      - ./client/dist:/usr/share/nginx/html:ro
+    depends_on:
+      server:
+        condition: service_started
+    networks:
+      - default
+
+  server:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.server
+    expose:
+      - "8000"
+    volumes:
+      - server_uploads:/app/statics/uploads
+    networks:
+      - default
+      - private_chef_network
+
+volumes:
+  server_uploads:
+
+networks:
+  private_chef_network:
+    name: private_chef_network
+    external: true
