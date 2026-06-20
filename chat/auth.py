@@ -7,6 +7,7 @@ import streamlit as st
 
 AUTH_USER_KEY = "auth_user"
 SERVER_URL = os.environ.get("SERVER_URL", "http://localhost:8000").rstrip("/")
+API_PREFIX = "/api"
 
 
 def _read_error(exc: urllib.error.HTTPError) -> str:
@@ -32,7 +33,7 @@ def _request(
         headers["Authorization"] = f"Bearer {token}"
     data = json.dumps(body).encode() if body is not None else None
     req = urllib.request.Request(
-        f"{SERVER_URL}{path}",
+        f"{SERVER_URL}{API_PREFIX}{path}",
         data=data,
         headers=headers,
         method=method,
