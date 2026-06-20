@@ -1,5 +1,4 @@
-from fastapi import APIRouter, Depends, Security, HTTPException, status
-from fastapi.security import SecurityScopes
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select, and_
 from sqlalchemy.orm import Session
 
@@ -19,7 +18,6 @@ def print_scopes(security_scopes: SecurityScopes):
 user_router = APIRouter(
     prefix="/user",
     tags=["用户管理"],
-    dependencies=[Security(print_scopes, scopes=["admin"])],
 )
 
 
