@@ -11,8 +11,8 @@ from utils.util import create_access_token
 from common.resp import BaseResp
 
 
-def print_scopes(security_scopes: SecurityScopes):
-    print("scopes: ", security_scopes.scopes)
+# def print_scopes(security_scopes: SecurityScopes):
+#     print("scopes: ", security_scopes.scopes)
 
 
 user_router = APIRouter(
